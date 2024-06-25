@@ -1,8 +1,11 @@
 import Mathlib.Algebra.Lie.Basic
+import Mathlib.Algebra.Lie.Free
+import Mathlib.Algebra.Lie.UniversalEnveloping
 
 universe u v w
 
---theorem PBW (R : Type u) (X : Type w) (L : FreeLieAlgebra R X) : sorry := sorry
+theorem PBW (R : Type u) (X : Type v) [CommRing R] (L : FreeLieAlgebra R X) : sorry--(UniversalEnvelopingAlgebra R L)
+ := sorry
 #eval 18 + 19
 
 def commuatation_factor (R : Type u) (A : Type v) [CommRing R] [CommGroup A] : sorry := sorry
