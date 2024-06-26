@@ -4,9 +4,21 @@ import Mathlib.Algebra.Lie.UniversalEnveloping
 
 universe u v w
 
-theorem PBW (R : Type u) (X : Type v) [CommRing R] (L : FreeLieAlgebra R X) : sorry--(UniversalEnvelopingAlgebra R L)
- := sorry
-#eval 18 + 19
+namespace PBW
+
+variable (R : Type u) (X : Type v) [CommRing R] [LE X] (ι : Type w)
+
+
+def foo : sorry := sorry
+
+
+def Basis : Basis ι R <| UniversalEnvelopingAlgebra R (FreeLieAlgebra R X) :=
+  sorry
+
+theorem Free : Module.Free R <| UniversalEnvelopingAlgebra R (FreeLieAlgebra R X) :=
+    Module.Free.of_basis <| PBW.Basis R X ι
+
+end PBW
 
 def commuatation_factor (R : Type u) (A : Type v) [CommRing R] [CommGroup A] : sorry := sorry
 
