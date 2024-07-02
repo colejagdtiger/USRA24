@@ -5,6 +5,9 @@ import Mathlib.LinearAlgebra.TensorAlgebra.Basic
 
 universe u v w
 
+open scoped DirectSum
+
+
 namespace SymmAlgebra
 
 variable (R : Type u) (M : Type v) [CommSemiring R] [AddCommMonoid M] [Module R M]
@@ -31,8 +34,7 @@ instance instAlgebra : Algebra R (SymmAlgebra R M) :=
 def mkAlgHom : TensorAlgebra R M →ₐ[R] SymmAlgebra R M :=
   RingQuot.mkAlgHom R (Rel R M)
 
-def ι : M →ₗ[R] SymmAlgebra R M := sorry
-
+def ι : M →ₗ[R] SymmAlgebra R M := LinearMap.comp (mkAlgHom R M) (TensorAlgebra.ι R)
 
 end SymmAlgebra
 
@@ -42,11 +44,63 @@ namespace UniversalEnvelopingAlgebra
 variable (R : Type u) (L : Type v)
 variable [CommRing R] [LieRing L] [LieAlgebra R L]
 
-def Un (n : ℕ) := TensorAlgebra R L
+def Tn (n : ℕ) := match n with
+  | 0 => LinearMap.range (TensorAlgebra.ι R : L →ₗ[_] _) ^ 0
+  | n + 1 => Submodule.span R <|
+    Set.union (Tn n).carrier (LinearMap.range (TensorAlgebra.ι R : L →ₗ[_] _) ^ (n + 1)).carrier
 
-def assocGraded : ℕ → TensorAlgebra R L := sorry
+def Un (n : ℕ) := match n with
+  | 0 => (LinearMap.range <| (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ 0
+  | n + 1 => Submodule.span R <|
+    Set.union (Un n).carrier ((LinearMap.range <|
+    (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ (n + 1)).carrier
 
 
+def Un_map (n m : ℕ) (h : n ≤ m) : Un R L n →ₗ[R] Un R L m where
+  toFun := by
+    intro x
+    sorry
+  map_add' := sorry
+  map_smul' := sorry
+
+instance LEMem (n m : ℕ) (h : n ≤ m) : Un R L n ≤ Un R L m := by
+  intros x h'
+  sorry
+
+--def fee (n : ℕ) : Submodule R L where
+--(Un R L (n + 1)) (Un R L n) }
+
+-- def Gn (n : ℕ) : Submodule R ((UniversalEnvelopingAlgebra R L) ⧸ (Un R L n)) := match n with
+--   | 0 => sorry--(Un R L 0)
+--   | n + 1 => by
+--     let h := Un R L (n + 1) ⧸ (LinearMap.range <| Un_map R L n (n + 1)
+--     (by simp only [le_add_iff_nonneg_right, zero_le]))
+--     --exact h
+--     sorry
+
+-- Want to remove this
+def foo (n : ℕ) := match n with
+  | 0 => ⊥
+  | n + 1 => Un R L n
+
+def Gn (n : ℕ) : Submodule R ((UniversalEnvelopingAlgebra R L) ⧸ foo R L n) := match n with
+  | 0 => Submodule.map (⊥ : Submodule R (UniversalEnvelopingAlgebra R L)).mkQ (Un R L 0)
+  | n + 1 => Submodule.map (Un R L n).mkQ (Un R L (n + 1))
+
+
+def assocGraded := ⨁ n : ℕ, Gn R L n
+
+namespace assocGraded
+
+instance instInhabited : Inhabited (assocGraded R L) := sorry
+
+instance instSemiring : Semiring (assocGraded R L) := sorry
+
+instance instAlgebra : Algebra R (assocGraded R L) := sorry
+
+def ι : UniversalEnvelopingAlgebra R L →ₗ[R] assocGraded R L := sorry
+
+end assocGraded
 
 end UniversalEnvelopingAlgebra
 
