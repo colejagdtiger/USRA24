@@ -49,22 +49,46 @@ def Tn (n : ℕ) := match n with
   | n + 1 => Submodule.span R <|
     Set.union (Tn n).carrier (LinearMap.range (TensorAlgebra.ι R : L →ₗ[_] _) ^ (n + 1)).carrier
 
-def Un (n : ℕ) := match n with
-  | 0 => (LinearMap.range <| (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ 0
-  | n + 1 => Submodule.span R <|
-    Set.union (Un n).carrier ((LinearMap.range <|
-    (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ (n + 1)).carrier
+def fee (n : ℕ) := (LinearMap.range <|
+  (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ n
 
+def Un (n : ℕ) : Submodule R (UniversalEnvelopingAlgebra R L) :=
+  Submodule.span R <| ⋃ (i : {i : ℕ | i ≤ n}), ((LinearMap.range <|
+    (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ (i : ℕ)).carrier
+
+def Un' (n : ℕ) : Submodule R (UniversalEnvelopingAlgebra R L) :=
+  iSup fun i : {k : ℕ | k ≤ n} => (LinearMap.range <|
+    (mkAlgHom R L).toLinearMap.comp (TensorAlgebra.ι R : L →ₗ[_] _)) ^ (i : ℕ)
 
 def Un_map (n m : ℕ) (h : n ≤ m) : Un R L n →ₗ[R] Un R L m where
   toFun := by
     intro x
-    sorry
+    induction m with
+    | zero =>
+      simp only [Nat.zero_eq, nonpos_iff_eq_zero] at h
+      rw [h] at x
+      exact x
+
+    | succ m ih =>
+      dsimp [Un]
+      have h' : n ≤ m ∨ n = m + 1 := sorry
+      sorry
   map_add' := sorry
   map_smul' := sorry
 
-instance LEMem (n m : ℕ) (h : n ≤ m) : Un R L n ≤ Un R L m := by
-  intros x h'
+def LEMem (n m : ℕ) (h : n ≤ m) : Un R L n ≤ Un R L m := by
+  apply Submodule.span_mono
+  simp [Set.mem_iUnion]
+  intro i h₁ x h₂
+  simp [Set.mem_iUnion]
+  use i
+  exact ⟨h₁.trans h, h₂⟩
+
+
+def UnMul (n M : ℕ) : Un R L n → Un R L m → Un R L (n + m) := sorry
+
+def LEMem' (n m : ℕ) (h : n ≤ m) : Un' R L n ≤ Un' R L m := by
+  dsimp [Un']
   sorry
 
 --def fee (n : ℕ) : Submodule R L where
@@ -86,6 +110,7 @@ def foo (n : ℕ) := match n with
 def Gn (n : ℕ) : Submodule R ((UniversalEnvelopingAlgebra R L) ⧸ foo R L n) := match n with
   | 0 => Submodule.map (⊥ : Submodule R (UniversalEnvelopingAlgebra R L)).mkQ (Un R L 0)
   | n + 1 => Submodule.map (Un R L n).mkQ (Un R L (n + 1))
+
 
 
 def assocGraded := ⨁ n : ℕ, Gn R L n
