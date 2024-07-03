@@ -33,7 +33,7 @@ lemma  Abelianization.mk_surjective : Function.Surjective (Abelianization.mk M) 
 instance : CommMagma (Abelianization M) where
   mul_comm x y := by
     obtain ⟨x,rfl⟩ := Abelianization.mk_surjective _ x
-    obtain ⟨y,rfl⟩ :=  Abelianization.mk_surjective _ y
+    obtain ⟨y,rfl⟩ := Abelianization.mk_surjective _ y
     exact Quotient.sound <| Rel.mul_comm x y
 
 instance (M : Type u) [MulOneClass M] : MulOneClass (Abelianization M) where
