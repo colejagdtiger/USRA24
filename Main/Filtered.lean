@@ -3,30 +3,52 @@ import Mathlib.Order.SuccPred.Basic
 import Mathlib.LinearAlgebra.Quotient
 import Mathlib.Algebra.DirectSum.Basic
 import Mathlib.Algebra.Algebra.Operations
+import Mathlib.Algebra.Algebra.Subalgebra.Basic
+import Mathlib.RingTheory.GradedAlgebra.Basic
 
 universe u v w
 
 open scoped DirectSum
 
 
+
+
+
+variable {R : Type u} {M : Type v} {ι : Type w}
+[CommRing R] [AddCommMonoid M] [Module R M] [OrderedAddCommMonoid ι] [PredOrder ι] [DecidableEq ι]
+
+class FilteredModule (𝓜 : ι → Submodule R M) where
+  whole : iSup 𝓜 = ⊤
+
+namespace FilteredModule
+
+
+
+end FilteredModule
+
+
 variable {R : Type u} {A : Type v} {ι : Type w}
 [CommRing R] [Ring A] [Algebra R A] [OrderedAddCommMonoid ι] [PredOrder ι] [DecidableEq ι]
 
-
-class FilteredAlgebra (𝓐 : ι → Submodule R A) where
-  whole : iSup 𝓐 = ⊤
+class FilteredAlgebra (𝓐 : ι → Submodule R A) extends FilteredModule 𝓐 where
   mono : Monotone 𝓐 --∀ i j, i ≤ j → 𝓐 i ≤ 𝓐 j
   mul_compat : ∀ i j, 𝓐 i * 𝓐 j ≤ 𝓐 (i + j)
   one : 1 ∈ 𝓐 0
 
 namespace FilteredAlgebra
 
-instance instZeroInhabited (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Inhabited (𝓐 0) :=
-  inferInstance
+def instSubAlgebraZero (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Subalgebra R A where
+  carrier := 𝓐 0
+  mul_mem' := sorry
+  add_mem' := Submodule.add_mem (𝓐 0)
+  algebraMap_mem' := sorry
 
-instance instZeroSemiring (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Semiring (𝓐 0) := sorry
-
-instance instZeroAlgebra (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Algebra R (𝓐 0) := sorry
+-- As written this is not true
+instance instGradedAlgebra (𝓐 : ι → Submodule R A) [GradedAlgebra 𝓐] : FilteredAlgebra 𝓐 where
+  whole := sorry
+  mono := sorry
+  mul_compat := sorry
+  one := sorry
 
 --def zero_hom (𝓐 : ι → Submodule R A) : 𝓐 0 →+* A := sorry
 
@@ -80,8 +102,8 @@ def fee (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
     ⟨x * y, mul_compat' 𝓐 i j (Submodule.coe_mem x) (Submodule.coe_mem y)⟩
 
 def foo (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
-  𝓐 i → 𝓐 j → gradedObject 𝓐 (i + j) := fun x y =>
-    gradedObject.mk _ _ <| fee _ _ _ x y
+  𝓐 i → 𝓐 j → gradedObject 𝓐 (i + j) := fun x y => sorry
+    --gradedObject.mk _ _ <| fee _ _ _ x y
 
 
 --def compat (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :

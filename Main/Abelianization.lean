@@ -22,6 +22,7 @@ def Abelianization := Quotient (Abelianization.setoid M)
 
 def Abelianization.mk : M →  Abelianization M := Quotient.mk _
 
+#check Abelianization M
 instance : Mul (Abelianization M) where
   mul := Quotient.lift₂ (fun x y => Quotient.mk _ (x * y)) <|
     fun _ _ _ _ h₁ h₂ => Quotient.sound <| Rel.mul_compat _ _ _ _ h₁ h₂
