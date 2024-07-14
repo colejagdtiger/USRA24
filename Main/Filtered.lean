@@ -25,21 +25,28 @@ def aux (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] : Submodule
   | isTrue _ => ⊥
   | isFalse _ => 𝓜 (Order.pred i)
 
-lemma aux_le (𝓜 : ι → Submodule R M) [FilteredModule 𝓜] : ∀ i, aux 𝓜 i ≤ 𝓜 j := fun i =>
+lemma aux_le (𝓜 : ι → Submodule R M) [FilteredModule 𝓜] : ∀ i, aux 𝓜 i ≤ 𝓜 i := fun i =>
   match decEq i (Order.pred i) with
-  | isTrue _ => sorry
+  | isTrue _ => by
+    dsimp [aux]
+    split
+    · exact bot_le
+    · apply mono
+      exact Order.pred_le i
   | isFalse _ => by
     dsimp [aux]
-    --let f : 𝓐 i ≤ 𝓐 i := mono i i
     split
-    · sorry
-    · sorry
+    · exact bot_le
+    · apply mono
+      exact Order.pred_le i
 
 
 def gradedObject' (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] : sorry := by
   let X := 𝓜 i
   let Y := aux 𝓜 i
-
+  let h := aux_le 𝓜 i
+  --let Q := X ⧸
+  --letI := (𝓜 i) ⧸ (aux 𝓜 i)
   --let h := X ⧸ Y
   sorry
 
@@ -150,30 +157,29 @@ def gHMul {𝓐 : ι → Submodule R A} {i j : ι} [FilteredAlgebra 𝓐] :
 
 
 def gHMulHom (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
-  𝓐 i →ₗ[R] 𝓐 j →ₗ[R] FilteredModule.gradedObject 𝓐 (i + j) where
-    toFun x := (FilteredModule.gradedObject.mk _ _).comp (hMulHom 𝓐 i j x)
-    map_add' x₁ x₂ := by
-      simp only [map_add]
+  𝓐 i →ₗ[R] 𝓐 j →ₗ[R] FilteredModule.gradedObject 𝓐 (i + j) :=
+     LinearMap.compr₂ (hMulHom 𝓐 i j) (FilteredModule.gradedObject.mk 𝓐 (i + j))
 
-      sorry
-    map_smul' := sorry
+#check Submodule.mapQLinear
+def foo (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
+  LinearMap.ker (FilteredModule.gradedObject.mk 𝓐 i) ≤ LinearMap.ker (gHMulHom 𝓐 i j) := by
+    intro x hx
+    sorry
 
 def prod₁ (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
-  gradedObject 𝓐 i → 𝓐 j → gradedObject 𝓐 (i + j) := fun x y =>
-
+  gradedObject 𝓐 i →ₗ[R] 𝓐 j →ₗ[R] gradedObject 𝓐 (i + j) := by
+    let K := LinearMap.ker (gHMulHom 𝓐 i j)
+    let G := LinearMap.ker (FilteredModule.gradedObject.mk 𝓐 i)
+    let h : G ≤ K := sorry
     sorry
 
 def prod₂ (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
-  𝓐 i → gradedObject 𝓐 j → gradedObject 𝓐 (i + j) := sorry
+  𝓐 i →ₗ[R] gradedObject 𝓐 j →ₗ[R] gradedObject 𝓐 (i + j) := sorry
 
 
 def prod (𝓐 : ι → Submodule R A) (i j : ι) [FilteredAlgebra 𝓐] :
-  gradedObject 𝓐 i → gradedObject 𝓐 j → gradedObject 𝓐 (i + j) := fun x y => by
+  gradedObject 𝓐 i →ₗ[R] gradedObject 𝓐 j →ₗ[R] gradedObject 𝓐 (i + j) := by
 
-    -- let R := (Submodule.quotientRel (FilteredModule.aux 𝓐 i))
-    -- let S := (Submodule.quotientRel (FilteredModule.aux 𝓐 j))
-    --let h := Quotient.lift₂ (fun x y => x * y) (sorry) (A ⧸ (aux 𝓐 i))
-    --let g := Quotient.map₂ <| mul 𝓐
     sorry
 
 def instSubAlgebraZero (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Subalgebra R A where
@@ -184,7 +190,6 @@ def instSubAlgebraZero (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Su
     exact h
   add_mem' := Submodule.add_mem (𝓐 0)
   algebraMap_mem' r := (r_in_zero 𝓐 r)
-
 
 
 -- As written this is not true
