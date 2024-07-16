@@ -40,23 +40,26 @@ lemma aux_le (𝓜 : ι → Submodule R M) [FilteredModule 𝓜] : ∀ i, aux �
     · apply mono
       exact Order.pred_le i
 
+def aux_ι (𝓜 : ι → Submodule R M) [FilteredModule 𝓜] (i : ι) := Submodule.inclusion <| aux_le 𝓜 i
 
-def gradedObject' (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] : sorry := by
-  let X := 𝓜 i
-  let Y := aux 𝓜 i
-  let h := aux_le 𝓜 i
-  --let Q := X ⧸
-  --letI := (𝓜 i) ⧸ (aux 𝓜 i)
-  --let h := X ⧸ Y
-  sorry
 
 def gradedObject (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] :=
   Submodule.map (aux 𝓜 i).mkQ <| 𝓜 i
 
 def gradedObject.mk (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] :
-  𝓜 i →ₗ[R] gradedObject 𝓜 i :=
-    LinearMap.submoduleMap (aux 𝓜 i).mkQ <| 𝓜 i
+  𝓜 i →ₗ[R] gradedObject 𝓜 i := LinearMap.submoduleMap (aux 𝓜 i).mkQ <| 𝓜 i
 
+
+abbrev gradedObject' (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] :=
+  (𝓜 i) ⧸ (Submodule.map (aux_ι 𝓜 i) ⊤)
+
+
+
+def gradedObject'.mk (𝓜 : ι → Submodule R M) (i : ι) [FilteredModule 𝓜] :
+  𝓜 i →ₗ[R] gradedObject' 𝓜 i := by
+    --letI := Submodule.mkQ (Submodule.map (aux_ι 𝓜 i))
+
+    sorry
 -- lemma gradedObject.mk_apply {𝓐 : ι → Submodule R A} {i : ι} [FilteredAlgebra 𝓐] (x : 𝓐 i) :
 --   gradedObject 𝓐 i := by
 --     let h := LinearMap.submoduleMap_coe_apply (aux 𝓐 i).mkQ x
