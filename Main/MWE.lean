@@ -1,38 +1,28 @@
-import Mathlib.Algebra.Algebra.Subalgebra.Basic
+import Mathlib.CategoryTheory.Subobject.Basic
+import Mathlib.CategoryTheory.Category.Cat
+import Mathlib.CategoryTheory.Limits.Shapes.Pullback.HasPullback
 
-universe u v w
+universe u v
 
-variable {R : Type u} {M : Type v} {ι : Type w}
-[CommRing R] [AddCommGroup M] [Module R M] [OrderedAddCommMonoid ι]
+open CategoryTheory
 
-class FilteredModule (𝓜 : ι → Submodule R M) where
-  whole : iSup 𝓜 = ⊤
-  mono : Monotone 𝓜
+variable {C : Type u} [Category.{v, u} C] [Limits.HasTerminal C]
 
-variable {R : Type u} {A : Type v} {ι : Type w}
-[CommRing R] [Ring A] [Algebra R A] [OrderedAddCommMonoid ι]
+noncomputable section
 
-class FilteredAlgebra (𝓐 : ι → Submodule R A) extends FilteredModule 𝓐 where
-  mul_compat' : ∀ i j, 𝓐 i * 𝓐 j ≤ 𝓐 (i + j)
-  one' : 1 ∈ 𝓐 0
+@[simp]
+lemma equ : Type max (v+1) v (u+1) = Type ((max u v) + 1) := rfl
 
-namespace FilteredAlgebra
+def subobjectPresheaf [Limits.HasPullbacks C] : Functor Cᵒᵖ Cat.{max u v, max u v} where
+  obj X := Cat.of <| Subobject X.unop
+  map f := Subobject.pullback f.unop
+  map_id X := by
+    simp only [unop_id]
+    --apply Subobject.pullback_id
 
-lemma r_in_zero (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] (r : R) : algebraMap R A r ∈ (𝓐 0) := by
-    simp only [Algebra.algebraMap_eq_smul_one]
-    exact Submodule.smul_mem (𝓐 0) r one'
+    sorry
+  map_comp := sorry
 
-lemma mul_compat {𝓐 : ι → Submodule R A} [FilteredAlgebra 𝓐] :
-  ∀ i j, a ∈ 𝓐 i → b ∈ 𝓐 j → a * b ∈ 𝓐 (i + j) := fun i j h₁ h₂ =>
-    mul_compat' i j <| Submodule.mul_mem_mul h₁ h₂
-
-def instSubAlgebraZero (𝓐 : ι → Submodule R A) [FilteredAlgebra 𝓐] : Subalgebra R A where
-  carrier := 𝓐 0
-  mul_mem' a b := by
-    let h := mul_compat 0 0 a b
-    simp only [add_zero] at h
-    exact h
-  add_mem' := Submodule.add_mem (𝓐 0)
-  algebraMap_mem' r := (r_in_zero 𝓐 r)
-
-end FilteredAlgebra
+-- def subobjectPresheaf' [Limits.HasPullbacks C] : Functor Cᵒᵖ (Type (max u v)) where
+--   obj X := Subobject X.unop
+--   map f := (Subobject.pullback f.unop).obj

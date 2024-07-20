@@ -20,7 +20,7 @@ def Abelianization.setoid : Setoid M where
 
 def Abelianization := Quotient (Abelianization.setoid M)
 
-def Abelianization.mk : M →  Abelianization M := Quotient.mk _
+def Abelianization.mk : M → Abelianization M := Quotient.mk _
 
 #check Abelianization M
 instance : Mul (Abelianization M) where
