@@ -2,7 +2,6 @@ import Mathlib.Algebra.Lie.Basic
 import Mathlib.Algebra.Lie.Free
 import Mathlib.Algebra.RingQuot
 import Mathlib.LinearAlgebra.TensorAlgebra.Basic
-
 universe u v w
 
 open scoped DirectSum

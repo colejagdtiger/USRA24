@@ -4,6 +4,7 @@ import Mathlib.CategoryTheory.Types
 import Mathlib.CategoryTheory.Limits.Shapes.RegularMono
 import Mathlib.CategoryTheory.Subobject.Basic
 import Mathlib.CategoryTheory.Category.Cat
+import Mathlib.CategoryTheory.Subobject.Lattice
 --import Mathlib.CategoryTheory.EqToHom
 --import Mathlib.CategoryTheory.Subobject.WellPowered
 
@@ -52,18 +53,119 @@ instance StrongSubobjectClassifier.map_mono {P : MorphismProperty C}
 
 namespace SubobjectClassifier
 
-variable {C : Type u} [Category.{v, u} C] [Limits.HasTerminal C] [HasSubobjectClassifier C]
+section lemmas
 
-def subobjectPresheaf [Limits.HasPullbacks C] : Functor Cᵒᵖ (Type (max u v)) where
-  obj X := Subobject X.unop
-  map f := (Subobject.pullback f.unop).obj
-  map_id X := by
-    ext _
-    · simp only [unop_id, types_id_apply]
-      erw [Subobject.pullback_id]
-    · simp only [unop_id, types_id_apply, eq_mpr_eq_cast, id_eq]
+variable {C : Type u} [Category.{v, u} C] [Limits.HasTerminal C] {U X : C} (f : U ⟶ X) [Mono f]
+  (s : SubobjectClassifier C)
+
+@[simp]
+lemma comp_factor_eq_map :
+  f ≫ Limits.terminal.from X ≫ s.map = f ≫ s.c f := by
+    letI := eq_whisker (Limits.terminal.comp_from f) s.map
+    simp only [Category.assoc] at this
+    rw [this]
+    exact (s.isPullback f).w
+
+lemma terminal_map_eq_forkι_classifiying
+  (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :
+  (Limits.terminal.from c.pt) ≫ s.map = (Limits.Fork.ι c) ≫ (s.c f) := by
+
+
+    sorry
+
+def forkConeToPullbackCone.app
+  (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :
+  (Functor.const Limits.WalkingCospan).obj c.pt ⟶ Limits.cospan (s.c f) s.map := by
+
+    sorry
+
+def forkConeToPullbackCone
+  (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :
+  CategoryTheory.Limits.PullbackCone (s.c f) s.map where
+    pt := c.pt
+    π := by
 
       sorry
+
+
+def fork := Limits.Fork.ofι f (comp_factor_eq_map f s)
+
+def lift (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :
+  c.pt ⟶ (fork f s).pt :=
+    (IsPullback.isLimit <| s.isPullback f).lift <|
+    Limits.PullbackCone.mk (Limits.terminal.from c.pt) (Limits.Fork.ι c) <|
+    terminal_map_eq_forkι_classifiying f s c
+
+def aux (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :=
+  (IsPullback.isLimit <| s.isPullback f).fac <|
+    Limits.PullbackCone.mk (Limits.terminal.from c.pt) (Limits.Fork.ι c) <|
+    terminal_map_eq_forkι_classifiying f s c
+
+-- lemma fas_zero (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f))) :
+--   (fork f s).π.app Limits.WalkingParallelPair.zero =  (aux f s c) Limits.WalkingCospan.left := by
+
+--     sorry
+
+def fac (c : Limits.Cone (Limits.parallelPair (Limits.terminal.from X ≫ s.map) (s.c f)))
+  (j : Limits.WalkingParallelPair) : (lift f s c) ≫ (fork f s).π.app j = c.π.app j := by
+    letI := (IsPullback.isLimit <| s.isPullback f).fac <|
+      Limits.PullbackCone.mk (Limits.terminal.from c.pt) (Limits.Fork.ι c) <|
+      terminal_map_eq_forkι_classifiying f s c
+
+    cases j with
+    | zero =>
+      let h := this Limits.WalkingCospan.left
+      simp at h
+
+      sorry
+    | one => sorry
+
+
+def fine :
+  Limits.IsLimit (fork f s) where
+    lift c := lift f s c
+    fac c j := by
+      letI := (IsPullback.isLimit <| s.isPullback f).fac <|
+        Limits.PullbackCone.mk (Limits.terminal.from c.pt) (Limits.Fork.ι c) <|
+        terminal_map_eq_forkι_classifiying f s c
+
+      sorry
+    uniq := sorry
+
+
+end lemmas
+
+variable {C : Type u} [Category.{v, u} C] [Limits.HasTerminal C] [HasSubobjectClassifier C]
+
+-- @[simp]
+-- lemma foo {X : C} (x : Subobject X) [Limits.HasPullbacks C] :
+--   (Subobject.underlying.obj ((Subobject.pullback (𝟙 X)).obj x) ⟶ X) =
+--     (Subobject.underlying.obj x ⟶ X) := by
+--       simp only [Subobject.pullback_id]
+
+-- lemma fee {X : C} (x : Subobject X) [Limits.HasPullbacks C] :
+--   ((Subobject.pullback (𝟙 X)).obj x).arrow = x.arrow := by
+--   sorry
+
+def subobjectPresheaf [Limits.HasPullbacks C] : Functor Cᵒᵖ (Type (max u v)) where
+  obj X := (Subobject X.unop)
+  map f := (Subobject.pullback f.unop).obj
+  map_id X := by
+    ext U
+    · simp only [types_id_apply]
+      erw [Subobject.pullback_id]
+    · simp at U
+      simp only [unop_id, types_id_apply, eq_mpr_eq_cast, id_eq]
+
+
+      sorry
+    -- ext _
+    -- · simp only [unop_id, types_id_apply]
+    --   erw [Subobject.pullback_id]
+    -- · simp only [unop_id, types_id_apply, eq_mpr_eq_cast, id_eq]
+    --   dsimp [Subobject.arrow]
+    --   --dsimp [Subobject.representative.obj]
+    --   erw [Subobject.pullback_id]
   map_comp f g := by
     ext _
     · simp only [unop_comp, types_comp_apply]
@@ -74,32 +176,34 @@ def subobjectPresheaf [Limits.HasPullbacks C] : Functor Cᵒᵖ (Type (max u v))
       sorry
 
 
-def subobjectPresheaf' (C : Type u) [Category.{v, u} C] [Limits.HasPullbacks C] :
-  Functor Cᵒᵖ Cat.{max u v} where
-    obj X := Cat.of <| Subobject X.unop
-    map f := Subobject.pullback f.unop
-    map_id X := by
-      apply CategoryTheory.Functor.ext
-      · intro _ _ _
-        rfl
-      · intro _
-        erw [Subobject.pullback_id]
-        rfl
-    map_comp f g := by
-      apply CategoryTheory.Functor.ext
-      · intro _ _ _
-        rfl
-      · intro _
-        erw [Subobject.pullback_comp]
-        rfl
+-- def subobjectPresheaf' (C : Type u) [Category.{v, u} C] [Limits.HasPullbacks C] :
+--   Functor Cᵒᵖ Cat.{max u v} where
+--     obj X := Cat.of <| Subobject X.unop
+--     map f := Subobject.pullback f.unop
+--     map_id X := by
+--       apply CategoryTheory.Functor.ext
+--       · intro _ _ _
+--         rfl
+--       · intro _
+--         erw [Subobject.pullback_id]
+--         rfl
+--     map_comp f g := by
+--       apply CategoryTheory.Functor.ext
+--       · intro _ _ _
+--         rfl
+--       · intro _
+--         erw [Subobject.pullback_comp]
+--         rfl
+
+def test := ULift.{max u v, u} C
 
 
-def subobjcetPresheafToType (C : Type u) [Category.{v, u} C] [Limits.HasPullbacks C] :
-  Functor Cᵒᵖ (Type max u v) := Functor.comp (subobjectPresheaf' C) <| Cat.objects
+instance subobjectClassifier_represents (C : Type u) [Category.{max u v, u} C] [Limits.HasPullbacks C]
+  : Functor.Representable (CategoryTheory.Subobject.functor C) where
+    has_representation := sorry
 
-
--- instance subobjectClassifier_represents_subobjectPresheaf :
---   Functor.Representable.{max u v} (subobjectPresheafToType C) where
+-- instance subobjectClassifier_represents_subobjectPresheaf [Limits.HasPullbacks C] :
+--   Functor.Representable (subobjectPresheafToType C) where
 --     has_representation := sorry
 
 -- def W {U X : C} (f : U ⟶ X) [Mono f]  := f ≫ Limits.terminal.from X ≫ α.map = f ≫ α.classifying_map f
@@ -111,33 +215,13 @@ def subobjcetPresheafToType (C : Type u) [Category.{v, u} C] [Limits.HasPullback
 --   (Limits.parallelPair (Limits.terminal.from X ≫ (subobjectClassifier C).map)
 --     ((subobjectClassifier C).classifying_map f))) : Cone
 
+-- def aoo {X Y : C} {f g : X ⟶ Y} (t : CategoryTheory.Limits.Fork f g) : sorry := sorry
+
 instance instRegularMono {U X : C} (f : U ⟶ X) [Mono f] : RegularMono f where
   Z := (subobjectClassifier C).Ω
   left := Limits.terminal.from X ≫ (subobjectClassifier C).map
   right := (subobjectClassifier C).c f
-  w := by
-    letI := eq_whisker (Limits.terminal.comp_from f) (subobjectClassifier C).map
-    simp only [Category.assoc] at this
-    rw [this]
-    exact ((subobjectClassifier C).isPullback f).w
-  isLimit := by
-    constructor
-    · intro c j
-
-      -- def equalizerCone {U X : C} (f : U ⟶ X) [Mono f] (c : Limits.Cone
---   (Limits.parallelPair (Limits.terminal.from X ≫ (subobjectClassifier C).map)
---     ((subobjectClassifier C).classifying_map f))) : Cone
-      letI := (IsPullback.isLimit <| (subobjectClassifier C).isPullback f).lift
-      let π := c.π.app
-      simp at π
-
-
-      sorry
-    · intro c m j
-      sorry
-    · intro c
-      sorry
-
+  isLimit := fine f <| subobjectClassifier C
 -- def subObj_equiv_maps (X : C) [h : Category.{v, u} C] [Limits.HasTerminal C] [HasSubobjectClassifier C] :
 --   Subobject X ≃ h.Hom X (subobjectClassifier C).Ω where
 --     toFun f := (subobjectClassifier C).classifying_map f.arrow
